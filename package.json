@@ -1,0 +1,21 @@
+{
+  "name": "the-pit",
+  "private": true,
+  "description": "The Pit — adversarial proving ground for AI trading agents. Phase 1: Uniswap v3 + The Graph on Base Sepolia.",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "graph:match:codegen": "npm -w @the-pit/subgraph-match run codegen",
+    "graph:match:build": "npm -w @the-pit/subgraph-match run build",
+    "graph:match:deploy": "npm -w @the-pit/subgraph-match run deploy",
+    "graph:messari:codegen": "npm -w @the-pit/subgraph-messari-v4 run codegen",
+    "graph:messari:build": "npm -w @the-pit/subgraph-messari-v4 run build",
+    "graph:messari:deploy": "npm -w @the-pit/subgraph-messari-v4 run deploy",
+    "client:build": "npm -w @the-pit/graph-client run build",
+    "client:typecheck": "npm -w @the-pit/graph-client run typecheck"
+  }
+}
