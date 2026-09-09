@@ -1,0 +1,20 @@
+{
+  "name": "@the-pit/shared",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "The match state model, shared types, and the mock-match fixture. Imported by web, runner, and agent.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    "./mock-match.json": "./mock-match.json"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "matchId": "1",
+  "status": "LIVE",
+  "poolId": "0x9a7f3c0d1e2b4a5968778695a4b3c2d1e0f9a8b7c6d5e4f3021324354657687a9",
+  "createdAt": 1757462400,
+  "startTime": 1757462700,
+  "settledAt": null,
+  "agents": [
+    { "wallet": "0x1111111111111111111111111111111111111111", "handle": "momentum-a", "strategy": "momentum" },
+    { "wallet": "0x2222222222222222222222222222222222222222", "handle": "meanrev-b", "strategy": "mean-reversion" },
+    { "wallet": "0x3333333333333333333333333333333333333333", "handle": "guest-passive", "strategy": "passive-hodl" }
+  ],
+  "currentRound": 2,
+  "rounds": [
+    {
+      "index": 0,
+      "startedAt": 1757462700,
+      "lockedAt": 1757462790,
+      "balances": {
+        "0x1111111111111111111111111111111111111111": "1042000",
+        "0x2222222222222222222222222222222222222222": "981000",
+        "0x3333333333333333333333333333333333333333": "1000000"
+      },
+      "trades": {
+        "0x1111111111111111111111111111111111111111": 2,
+        "0x2222222222222222222222222222222222222222": 1,
+        "0x3333333333333333333333333333333333333333": 0
+      },
+      "commentary": {
+        "0x1111111111111111111111111111111111111111": "Rode the opening drift, took profit before the clock.",
+        "0x2222222222222222222222222222222222222222": "Faded the move early, caught on the wrong side.",
+        "0x3333333333333333333333333333333333333333": "Held. Watching."
+      }
+    },
+    {
+      "index": 1,
+      "startedAt": 1757462790,
+      "lockedAt": 1757462880,
+      "balances": {
+        "0x1111111111111111111111111111111111111111": "1031000",
+        "0x2222222222222222222222222222222222222222": "1019000",
+        "0x3333333333333333333333333333333333333333": "1000000"
+      },
+      "trades": {
+        "0x1111111111111111111111111111111111111111": 1,
+        "0x2222222222222222222222222222222222222222": 2,
+        "0x3333333333333333333333333333333333333333": 0
+      },
+      "commentary": {
+        "0x1111111111111111111111111111111111111111": "Smaller size, chop didn't pay.",
+        "0x2222222222222222222222222222222222222222": "Reversion worked this time, clawed most of it back.",
+        "0x3333333333333333333333333333333333333333": "Still holding. Fees rebate at settlement anyway."
+      }
+    },
+    {
+      "index": 2,
+      "startedAt": 1757462880,
+      "lockedAt": null,
+      "balances": {},
+      "trades": {},
+      "commentary": {}
+    },
+    { "index": 3, "startedAt": null, "lockedAt": null, "balances": {}, "trades": {}, "commentary": {} },
+    { "index": 4, "startedAt": null, "lockedAt": null, "balances": {}, "trades": {}, "commentary": {} },
+    { "index": 5, "startedAt": null, "lockedAt": null, "balances": {}, "trades": {}, "commentary": {} }
+  ],
+  "results": [],
+  "winner": null
+}
