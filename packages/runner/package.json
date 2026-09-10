@@ -1,0 +1,27 @@
+{
+  "name": "@the-pit/runner",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Match lifecycle orchestrator: fund -> register -> start -> 6 rounds -> lock -> reveal -> settle. Mock mode (Phase 1) and chain mode (Phase 2+). Owner: Suganthan.",
+  "bin": { "pit-runner": "./dist/index.js" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "mock": "node --env-file=../../.env dist/index.js mock",
+    "rehearse": "node --env-file=../../.env dist/index.js rehearse",
+    "run:match": "node --env-file=../../.env dist/index.js run",
+    "loop": "node --env-file=../../.env dist/index.js loop"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "@the-pit/agent": "*",
+    "@the-pit/graph-client": "*",
+    "@the-pit/shared": "*",
+    "viem": "^2.21.19"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "typescript": "^5.6.3"
+  }
+}
