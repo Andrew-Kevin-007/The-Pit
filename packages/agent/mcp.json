@@ -1,0 +1,22 @@
+{
+  "//": "Subgraph MCP for the agent (Claude Agent SDK `mcpServers`). Same server as the repo-root .mcp.json. The agent queries BOTH deployments through it: the-pit-match (its own history) and the-pit-messari (pool/market data). Set GRAPH_GATEWAY_API_KEY in the environment.",
+  "mcpServers": {
+    "subgraph": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "--header",
+        "Authorization:${AUTH_HEADER}",
+        "https://subgraphs.mcp.thegraph.com/sse"
+      ],
+      "env": {
+        "AUTH_HEADER": "Bearer ${GRAPH_GATEWAY_API_KEY}"
+      }
+    }
+  },
+  "deployments": {
+    "match": "${MATCH_SUBGRAPH_DEPLOYMENT_ID}",
+    "messari": "${MESSARI_SUBGRAPH_DEPLOYMENT_ID}"
+  }
+}

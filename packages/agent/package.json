@@ -1,0 +1,21 @@
+{
+  "name": "@the-pit/agent",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Claude Agent SDK tick loop + Subgraph-MCP reasoning. Owners: Sylesh (loop, strategies, execution) + Suganthan (Graph reasoning, opponent-view enforcement, x402).",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@the-pit/graph-client": "*",
+    "@the-pit/shared": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "typescript": "^5.6.3"
+  }
+}
