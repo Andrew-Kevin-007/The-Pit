@@ -1,0 +1,23 @@
+{
+  "name": "@the-pit/subgraph-messari",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Messari Standardized DEX AMM (Extended / concentrated-liquidity) schema, mapped from a single Uniswap v3 pool contract on Base Sepolia (the house pool PitRouter wraps). Owner: Suganthan (Graph Track 1).",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "test": "graph test",
+    "test:docker": "graph test -d",
+    "auth": "graph auth",
+    "deploy": "graph build --network base-sepolia && graph deploy pit-messari",
+    "create-local": "graph create --node http://localhost:8020/ pit-messari",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 pit-messari"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.97.1",
+    "@graphprotocol/graph-ts": "^0.38.0"
+  },
+  "devDependencies": {
+    "matchstick-as": "^0.6.0"
+  }
+}
