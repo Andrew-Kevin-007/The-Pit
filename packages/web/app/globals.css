@@ -1,0 +1,106 @@
+:root {
+  --bg: #0b0d10;
+  --panel: #14181d;
+  --line: #232a31;
+  --fg: #e8edf2;
+  --muted: #8b97a3;
+  --accent: #f0b429;
+  --up: #35c88f;
+  --down: #e05a5a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+.wrap { max-width: 720px; margin: 0 auto; padding: 32px 20px 80px; }
+
+h1 { font-size: 20px; letter-spacing: 0.02em; margin: 0 0 4px; }
+.sub { color: var(--muted); margin: 0 0 28px; font-size: 13px; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.clock { font-size: 40px; font-variant-numeric: tabular-nums; letter-spacing: 0.03em; }
+.clock small { font-size: 13px; color: var(--muted); font-weight: 400; }
+
+.lead-row { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+.badge {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line);
+  color: var(--accent);
+}
+.dim { color: var(--muted); font-size: 13px; }
+
+.round { border-top: 1px solid var(--line); padding: 12px 0; }
+.round:first-of-type { border-top: 0; }
+.round h3 { margin: 0 0 6px; font-size: 13px; color: var(--muted); }
+.line { display: flex; gap: 8px; padding: 2px 0; }
+.line .who { color: var(--accent); min-width: 120px; }
+.line .say { color: var(--fg); }
+
+.picks { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.picks button {
+  background: transparent; color: var(--fg);
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 8px 14px; cursor: pointer; font-size: 14px;
+}
+.picks button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.picks button:disabled { opacity: 0.5; cursor: default; }
+
+.result { display: flex; justify-content: space-between; padding: 6px 0; border-top: 1px solid var(--line); }
+.pnl-up { color: var(--up); }
+.pnl-down { color: var(--down); }
+
+/* ============================================================
+   THE PIT — dark arcade arena design system (packages/web/README.md)
+   Everything below this line is the current design system every
+   page under app/ uses. The rules above are the original board's
+   own styles (BoardClient.tsx) — left as-is, just no longer routed
+   to from any page after this system was introduced.
+   ============================================================ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-pit-black text-pit-white;
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  /* faint horizontal scanline overlay — README "Design System" > scanline texture */
+  .pit-scanlines {
+    position: relative;
+  }
+  .pit-scanlines::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.025) 0px,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  }
+}
