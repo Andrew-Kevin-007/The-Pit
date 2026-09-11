@@ -1,0 +1,68 @@
+specVersion: 1.3.0
+description: The Pit — permanent, queryable record of every match run through
+  the proving ground.
+schema:
+  file: ./schema.graphql
+indexerHints:
+  prune: auto
+dataSources:
+  - kind: ethereum/contract
+    name: MatchController
+    network: base-sepolia
+    source:
+      abi: MatchController
+      address: "0xF6970a7cFa2E0B81357d5d2D2Ab10Cb7330fE944"
+      startBlock: 46732626
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Agent
+        - Match
+        - Registration
+        - Round
+        - RoundLock
+        - StrategyReveal
+        - AgentResult
+        - Pick
+      abis:
+        - name: MatchController
+          file: ./abis/MatchController.json
+      eventHandlers:
+        - event: AgentRegistered(indexed address,bytes32,uint256,indexed uint256)
+          handler: handleAgentRegistered
+        - event: MatchStarted(indexed uint256,uint256,address[])
+          handler: handleMatchStarted
+        - event: RoundLocked(indexed uint256,uint8,indexed address,uint256,uint256)
+          handler: handleRoundLocked
+        - event: StrategyRevealed(indexed uint256,indexed address,string)
+          handler: handleStrategyRevealed
+        - event: MatchSettled(indexed uint256,indexed address,uint256[])
+          handler: handleMatchSettled
+        - event: PickSubmitted(indexed uint256,indexed address,address)
+          handler: handlePickSubmitted
+      file: ./src/match-controller.ts
+  - kind: ethereum/contract
+    name: PitRouter
+    network: base-sepolia
+    source:
+      abi: PitRouter
+      address: "0x11231A06FA6673b0C22361670F711DCaf12Fc01c"
+      startBlock: 46732626
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Agent
+        - Match
+        - Round
+        - Trade
+      abis:
+        - name: PitRouter
+          file: ./abis/PitRouter.json
+      eventHandlers:
+        - event: AgentSwap(indexed uint256,uint8,indexed address,int256,int256,uint256)
+          handler: handleAgentSwap
+      file: ./src/pit-router.ts

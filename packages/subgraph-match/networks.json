@@ -1,0 +1,12 @@
+{
+  "base-sepolia": {
+    "MatchController": {
+      "address": "0xF6970a7cFa2E0B81357d5d2D2Ab10Cb7330fE944",
+      "startBlock": 46732626
+    },
+    "PitRouter": {
+      "address": "0x11231A06FA6673b0C22361670F711DCaf12Fc01c",
+      "startBlock": 46732626
+    }
+  }
+}

@@ -1,0 +1,133 @@
+# The Pit — match-events subgraph schema
+#
+# The tamper-proof record: every registration, round lock, revealed strategy,
+# trade, result and pick for every match ever run through The Pit.
+#
+# Design notes (see .claude/skills/subgraph-optimization):
+#  - append-only rows are @entity(immutable: true) for ~48% faster indexing
+#  - Agent / Match / Round / AgentResult stay mutable (status + running totals)
+#  - reverse lookups via @derivedFrom, never unbounded stored arrays
+#  - Bytes IDs where the natural key is an address/hash
+
+enum MatchStatus {
+  REGISTERING
+  LIVE
+  LOCKED
+  REVEALED
+  SETTLED
+}
+
+type Agent @entity(immutable: false) {
+  "wallet address"
+  id: Bytes!
+  firstSeen: BigInt!
+  totalMatches: Int!
+  wins: Int!
+  matches: [Match!]! @derivedFrom(field: "participants")
+  registrations: [Registration!]! @derivedFrom(field: "agent")
+  results: [AgentResult!]! @derivedFrom(field: "agent")
+  trades: [Trade!]! @derivedFrom(field: "agent")
+  reveals: [StrategyReveal!]! @derivedFrom(field: "agent")
+}
+
+type Match @entity(immutable: false) {
+  "matchId as a decimal string"
+  id: ID!
+  status: MatchStatus!
+  "PoolId (bytes32) of the v4 pool this match trades on"
+  poolId: Bytes
+  participants: [Agent!]!
+  createdAt: BigInt!
+  createdTx: Bytes!
+  startTime: BigInt
+  settledAt: BigInt
+  winner: Agent
+  rounds: [Round!]! @derivedFrom(field: "match")
+  trades: [Trade!]! @derivedFrom(field: "match")
+  reveals: [StrategyReveal!]! @derivedFrom(field: "match")
+  results: [AgentResult!]! @derivedFrom(field: "match")
+  picks: [Pick!]! @derivedFrom(field: "match")
+}
+
+type Registration @entity(immutable: true) {
+  "tx hash + log index"
+  id: Bytes!
+  match: Match!
+  agent: Agent!
+  commitHash: Bytes!
+  stake: BigInt!
+  timestamp: BigInt!
+  tx: Bytes!
+}
+
+type Round @entity(immutable: false) {
+  "matchId-roundIndex"
+  id: ID!
+  match: Match!
+  roundIndex: Int!
+  lockedAt: BigInt
+  locks: [RoundLock!]! @derivedFrom(field: "round")
+  trades: [Trade!]! @derivedFrom(field: "round")
+}
+
+type RoundLock @entity(immutable: true) {
+  "tx hash + log index"
+  id: Bytes!
+  round: Round!
+  match: Match!
+  agent: Agent!
+  "USDC balance read directly on-chain at lock time"
+  usdcBalance: BigInt!
+  timestamp: BigInt!
+  tx: Bytes!
+}
+
+type Trade @entity(immutable: true) {
+  "tx hash + log index"
+  id: Bytes!
+  match: Match!
+  round: Round!
+  agent: Agent!
+  roundIndex: Int!
+  "signed token deltas from the hook's afterSwap (int256)"
+  amount0: BigInt!
+  amount1: BigInt!
+  feeAccrued: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  tx: Bytes!
+}
+
+type StrategyReveal @entity(immutable: true) {
+  "tx hash + log index"
+  id: Bytes!
+  match: Match!
+  agent: Agent!
+  "revealed strategy config (JSON string)"
+  config: String!
+  timestamp: BigInt!
+  tx: Bytes!
+}
+
+type AgentResult @entity(immutable: false) {
+  "matchId-agentAddress"
+  id: ID!
+  match: Match!
+  agent: Agent!
+  "last on-chain USDC balance seen for this agent in this match"
+  finalUsdc: BigInt!
+  "finalUsdc - stake"
+  pnl: BigInt!
+  rebate: BigInt!
+  won: Boolean!
+}
+
+type Pick @entity(immutable: true) {
+  "tx hash + log index"
+  id: Bytes!
+  match: Match!
+  spectator: Bytes!
+  "the agent wallet this spectator picked"
+  side: Bytes!
+  timestamp: BigInt!
+}

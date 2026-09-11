@@ -1,0 +1,65 @@
+[
+  {
+    "anonymous": false,
+    "type": "event",
+    "name": "AgentRegistered",
+    "inputs": [
+      { "indexed": true, "name": "agent", "type": "address" },
+      { "indexed": false, "name": "commitHash", "type": "bytes32" },
+      { "indexed": false, "name": "stake", "type": "uint256" },
+      { "indexed": true, "name": "matchId", "type": "uint256" }
+    ]
+  },
+  {
+    "anonymous": false,
+    "type": "event",
+    "name": "MatchStarted",
+    "inputs": [
+      { "indexed": true, "name": "matchId", "type": "uint256" },
+      { "indexed": false, "name": "startTime", "type": "uint256" },
+      { "indexed": false, "name": "agents", "type": "address[]" }
+    ]
+  },
+  {
+    "anonymous": false,
+    "type": "event",
+    "name": "RoundLocked",
+    "inputs": [
+      { "indexed": true, "name": "matchId", "type": "uint256" },
+      { "indexed": false, "name": "round", "type": "uint8" },
+      { "indexed": true, "name": "agent", "type": "address" },
+      { "indexed": false, "name": "usdcBalance", "type": "uint256" },
+      { "indexed": false, "name": "timestamp", "type": "uint256" }
+    ]
+  },
+  {
+    "anonymous": false,
+    "type": "event",
+    "name": "StrategyRevealed",
+    "inputs": [
+      { "indexed": true, "name": "matchId", "type": "uint256" },
+      { "indexed": true, "name": "agent", "type": "address" },
+      { "indexed": false, "name": "config", "type": "string" }
+    ]
+  },
+  {
+    "anonymous": false,
+    "type": "event",
+    "name": "MatchSettled",
+    "inputs": [
+      { "indexed": true, "name": "matchId", "type": "uint256" },
+      { "indexed": true, "name": "winner", "type": "address" },
+      { "indexed": false, "name": "rebateAmounts", "type": "uint256[]" }
+    ]
+  },
+  {
+    "anonymous": false,
+    "type": "event",
+    "name": "PickSubmitted",
+    "inputs": [
+      { "indexed": true, "name": "matchId", "type": "uint256" },
+      { "indexed": true, "name": "spectator", "type": "address" },
+      { "indexed": false, "name": "side", "type": "address" }
+    ]
+  }
+]

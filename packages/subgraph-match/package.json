@@ -1,0 +1,23 @@
+{
+  "name": "@the-pit/subgraph-match",
+  "version": "0.0.1",
+  "private": true,
+  "description": "The Pit — custom match-events subgraph (round locks, reveals, trades, results, picks). Owner: Kevin.",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "test": "graph test",
+    "test:docker": "graph test -d",
+    "auth": "graph auth",
+    "deploy": "graph build --network base-sepolia && graph deploy pit",
+    "create-local": "graph create --node http://localhost:8020/ pit",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 pit"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.97.1",
+    "@graphprotocol/graph-ts": "^0.38.0"
+  },
+  "devDependencies": {
+    "matchstick-as": "^0.6.0"
+  }
+}

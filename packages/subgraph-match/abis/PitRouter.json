@@ -1,0 +1,15 @@
+[
+  {
+    "anonymous": false,
+    "type": "event",
+    "name": "AgentSwap",
+    "inputs": [
+      { "indexed": true, "name": "matchId", "type": "uint256" },
+      { "indexed": false, "name": "round", "type": "uint8" },
+      { "indexed": true, "name": "agent", "type": "address" },
+      { "indexed": false, "name": "amount0", "type": "int256" },
+      { "indexed": false, "name": "amount1", "type": "int256" },
+      { "indexed": false, "name": "feeAccrued", "type": "uint256" }
+    ]
+  }
+]
