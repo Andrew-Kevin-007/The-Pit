@@ -674,22 +674,3 @@ forge script script/Deploy.s.sol:Deploy --rpc-url "$BASE_SEPOLIA_RPC_URL" --broa
 ```
 
 Full step-by-step guide, including subgraph deploy: [`docs/BUILD.md`](docs/BUILD.md).
-
----
-
-## Ownership
-
-| Path | What | Owner |
-|---|---|---|
-| `packages/shared` | match state model, coarse+delayed leader rule, strategy-config, mock fixture | Suganthan |
-| `packages/subgraph-match` | custom match-events subgraph (the proof record) | Kevin |
-| `packages/subgraph-messari` | Messari Standardized DEX AMM subgraph (Graph Track 1) | Suganthan |
-| `packages/graph-client` | typed queries + the composed cross-subgraph query | Suganthan |
-| `packages/agent` | Claude Agent SDK tick loop + Subgraph-MCP reasoning (Graph Track 2) | Sylesh + Suganthan |
-| `packages/runner` | match lifecycle orchestrator (mock + chain modes) | Suganthan |
-| `packages/web` | the public board | Suganthan |
-| `.claude/skills/` | vendored Graph Subgraph SKILLs · `.mcp.json` = Subgraph MCP | — |
-| `backend/` | Foundry project: `PitRouter` + `MatchController` + `CommitReveal` (Uniswap v3) | Amalraj |
-
-Per-person task lists: `README-Amalraj.md` · `README-Sylesh.md` · `README-Kevin.md` · `README-Suganthan.md`.
-Graph integration map: [`docs/the-graph/README.md`](docs/the-graph/README.md). Reusable agent skill: [`packages/agent/SKILL.md`](packages/agent/SKILL.md).
