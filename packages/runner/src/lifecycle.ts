@@ -112,8 +112,14 @@ export async function runMatch(opts: RunOptions): Promise<MatchState> {
       // each agent reasons over live Graph context and (maybe) trades through
       // its OWN wallet — real decisions, real execution, no fixed/blind swap.
       const results = await Promise.allSettled(
-        opts.agents.map(async (a) => {
+        opts.agents.map(async (a, i) => {
           if (!a.privateKey) return { wallet: a.wallet, decisions: [] as Decision[] };
+          // Agents start their round concurrently, so their AgentHistory
+          // queries land on the subgraph in the same instant — and on a
+          // 429, both back off on a similar schedule and collide again on
+          // the next attempt, staying in lockstep. A small stagger between
+          // agents breaks that: retries desync instead of re-colliding.
+          if (i > 0) await sleep(i * 600);
           const execute = createPitRouterExecutor({
             agentPrivateKey: a.privateKey,
             matchId: opts.matchId,
