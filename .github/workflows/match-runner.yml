@@ -1,0 +1,82 @@
+# The Pit — match runner
+#
+# packages/runner is a portless CLI worker: it signs Base Sepolia transactions and
+# writes match state to Supabase. It has no HTTP surface, so PaaS free tiers that
+# only host web services can't run it. A public repo gets unlimited GitHub-hosted
+# Actions minutes, so this is where it runs.
+#
+# SECURITY — this repo is PUBLIC and these secrets sign transactions from funded
+# wallets. Only `schedule` and `workflow_dispatch` appear below, and both run solely
+# from the default branch under a collaborator's authority. There is deliberately no
+# `pull_request` or `pull_request_target` trigger: a fork PR must never reach these
+# secrets. Do not add one.
+
+name: match-runner
+
+on:
+  # On demand — use this right before a demo.
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "run = one match (~5.5 min). loop = back-to-back until the timeout."
+        type: choice
+        options: [run, loop]
+        default: run
+      timeout_minutes:
+        description: "Hard stop in minutes. Actions kills any job at 6h regardless."
+        type: string
+        default: "20"
+
+  # Keeps fresh matches landing in Supabase and the subgraph between demos.
+  # One match is ~5.5 min, so every 30 min is a light duty cycle.
+  schedule:
+    - cron: "*/30 * * * *"
+
+# A second runner would race the first for the next on-chain matchId. Never overlap.
+concurrency:
+  group: match-runner
+  cancel-in-progress: false
+
+jobs:
+  match:
+    runs-on: ubuntu-latest
+    # Scheduled runs do one match; manual runs honour the input.
+    timeout-minutes: ${{ fromJSON(inputs.timeout_minutes || '20') }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # dist/ is gitignored and no package has a prepare hook, so `npm ci` compiles
+      # nothing. The four packages must be built explicitly, and in this order —
+      # cross-package types resolve only through the built dist/*.d.ts.
+      - name: Install and build
+        run: |
+          npm ci --include=dev
+          npm -w @the-pit/shared run build
+          npm -w @the-pit/graph-client run build
+          npm -w @the-pit/agent run build
+          npm -w @the-pit/runner run build
+
+      # Called directly, not via `npm run loop` — every runner npm script is
+      # hard-wired to `node --env-file=../../.env`, and .env cannot exist in CI.
+      - name: Run match
+        env:
+          RUNNER_PRIVATE_KEY: ${{ secrets.RUNNER_PRIVATE_KEY }}
+          AGENT_A_PRIVATE_KEY: ${{ secrets.AGENT_A_PRIVATE_KEY }}
+          AGENT_B_PRIVATE_KEY: ${{ secrets.AGENT_B_PRIVATE_KEY }}
+          MATCH_CONTROLLER_ADDRESS: ${{ secrets.MATCH_CONTROLLER_ADDRESS }}
+          PIT_ROUTER_ADDRESS: ${{ secrets.PIT_ROUTER_ADDRESS }}
+          POOL_ADDRESS: ${{ secrets.POOL_ADDRESS }}
+          USDC_ADDRESS: ${{ secrets.USDC_ADDRESS }}
+          BASE_SEPOLIA_RPC_URL: ${{ secrets.BASE_SEPOLIA_RPC_URL }}
+          MATCH_SUBGRAPH_URL: ${{ secrets.MATCH_SUBGRAPH_URL }}
+          MESSARI_SUBGRAPH_URL: ${{ secrets.MESSARI_SUBGRAPH_URL }}
+          GRAPH_API_KEY: ${{ secrets.GRAPH_API_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: node packages/runner/dist/index.js ${{ inputs.mode || 'run' }}
