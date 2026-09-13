@@ -2,7 +2,7 @@
  * Queries against @the-pit/subgraph-match (Kevin's custom subgraph).
  */
 import { GraphQLClient, gql } from "graphql-request";
-import { authHeaders, loadConfig, type GraphConfig } from "./config.js";
+import { authHeaders, loadConfig, retryable, type GraphConfig } from "./config.js";
 
 function client(cfg: GraphConfig): GraphQLClient {
   return new GraphQLClient(cfg.matchUrl, { headers: authHeaders(cfg) });
@@ -44,9 +44,13 @@ export async function getAgentHistory(
   first = 25,
   cfg = loadConfig(),
 ): Promise<AgentResultRow[]> {
-  const data = await client(cfg).request<{ agentResults: AgentResultRow[] }>(
-    AGENT_HISTORY,
-    { agent: agent.toLowerCase(), first },
+  const data = await retryable(
+    () =>
+      client(cfg).request<{ agentResults: AgentResultRow[] }>(AGENT_HISTORY, {
+        agent: agent.toLowerCase(),
+        first,
+      }),
+    { label: "AgentHistory" },
   );
   return data.agentResults;
 }
@@ -81,9 +85,13 @@ export async function getAgentTrades(
   matchId: string,
   cfg = loadConfig(),
 ): Promise<AgentTradeRow[]> {
-  const data = await client(cfg).request<{ trades: AgentTradeRow[] }>(
-    AGENT_TRADES,
-    { agent: agent.toLowerCase(), match: matchId },
+  const data = await retryable(
+    () =>
+      client(cfg).request<{ trades: AgentTradeRow[] }>(AGENT_TRADES, {
+        agent: agent.toLowerCase(),
+        match: matchId,
+      }),
+    { label: "AgentTrades" },
   );
   return data.trades;
 }
@@ -143,9 +151,9 @@ export async function getMatchBoard(
   id: string,
   cfg = loadConfig(),
 ): Promise<MatchBoard | null> {
-  const data = await client(cfg).request<{ match: MatchBoard | null }>(
-    MATCH_BOARD,
-    { id },
+  const data = await retryable(
+    () => client(cfg).request<{ match: MatchBoard | null }>(MATCH_BOARD, { id }),
+    { label: "MatchBoard" },
   );
   return data.match;
 }
@@ -198,9 +206,12 @@ export async function getMatchReveals(
   matchId: string,
   cfg = loadConfig(),
 ): Promise<MatchRevealRow[]> {
-  const data = await client(cfg).request<{ strategyReveals: MatchRevealRow[] }>(
-    MATCH_REVEALS,
-    { match: matchId },
+  const data = await retryable(
+    () =>
+      client(cfg).request<{ strategyReveals: MatchRevealRow[] }>(MATCH_REVEALS, {
+        match: matchId,
+      }),
+    { label: "MatchReveals" },
   );
   return data.strategyReveals;
 }
@@ -235,9 +246,9 @@ export async function getLeaderboard(
   first = 200,
   cfg = loadConfig(),
 ): Promise<LeaderboardAgentRow[]> {
-  const data = await client(cfg).request<{ agents: LeaderboardAgentRow[] }>(
-    LEADERBOARD,
-    { first },
+  const data = await retryable(
+    () => client(cfg).request<{ agents: LeaderboardAgentRow[] }>(LEADERBOARD, { first }),
+    { label: "Leaderboard" },
   );
   return data.agents;
 }
@@ -264,10 +275,14 @@ export async function getGlobalStats(
   first = 1000,
   cfg = loadConfig(),
 ): Promise<GlobalStats> {
-  const data = await client(cfg).request<{
-    matches: { id: string; status: string }[];
-    agents: { id: string }[];
-  }>(GLOBAL_STATS, { first });
+  const data = await retryable(
+    () =>
+      client(cfg).request<{
+        matches: { id: string; status: string }[];
+        agents: { id: string }[];
+      }>(GLOBAL_STATS, { first }),
+    { label: "GlobalStats" },
+  );
   return {
     totalMatches: data.matches.length,
     totalSettledMatches: data.matches.filter((m) => m.status === "SETTLED").length,
@@ -309,7 +324,10 @@ export async function getAllMatches(
   first = 50,
   cfg = loadConfig(),
 ): Promise<MatchSummary[]> {
-  const data = await client(cfg).request<{ matches: MatchSummary[] }>(ALL_MATCHES, { first });
+  const data = await retryable(
+    () => client(cfg).request<{ matches: MatchSummary[] }>(ALL_MATCHES, { first }),
+    { label: "AllMatches" },
+  );
   return data.matches;
 }
 
@@ -321,9 +339,16 @@ export async function waitForSettlement(
   const delayMs = opts.delayMs ?? 2000;
   const cfg = opts.cfg ?? loadConfig();
   for (let i = 0; i < tries; i++) {
-    const data = await client(cfg).request<{
-      match: { status: string } | null;
-    }>(MATCH_SETTLED, { id });
+    // wrapped so a single transient 429/5xx doesn't abort the whole poll —
+    // without this, one rate-limited call throws past the outer tries loop
+    // entirely instead of just costing this one iteration.
+    const data = await retryable(
+      () =>
+        client(cfg).request<{
+          match: { status: string } | null;
+        }>(MATCH_SETTLED, { id }),
+      { label: "MatchSettled", tries: 3 },
+    );
     if (data.match && data.match.status === "SETTLED") return data.match;
     await new Promise((r) => setTimeout(r, delayMs));
   }

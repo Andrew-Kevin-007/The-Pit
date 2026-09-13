@@ -6,7 +6,7 @@
  * run unchanged — nothing here is Uniswap-specific.
  */
 import { GraphQLClient, gql } from "graphql-request";
-import { authHeaders, loadConfig, type GraphConfig } from "./config.js";
+import { authHeaders, loadConfig, retryable, type GraphConfig } from "./config.js";
 
 function client(cfg: GraphConfig): GraphQLClient {
   return new GraphQLClient(cfg.messariUrl, { headers: authHeaders(cfg) });
@@ -86,10 +86,14 @@ export async function getPoolActivity(
   first = 100,
   cfg = loadConfig(),
 ): Promise<PoolActivity> {
-  return client(cfg).request<PoolActivity>(POOL_ACTIVITY, {
-    pool: poolId,
-    poolBytes: poolId,
-    since: String(sinceUnix),
-    first,
-  });
+  return retryable(
+    () =>
+      client(cfg).request<PoolActivity>(POOL_ACTIVITY, {
+        pool: poolId,
+        poolBytes: poolId,
+        since: String(sinceUnix),
+        first,
+      }),
+    { label: "PoolActivity" },
+  );
 }
