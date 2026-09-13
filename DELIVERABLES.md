@@ -44,7 +44,7 @@ post-deploy — so this meant a fresh deploy, not a config edit.
   timing constant changed here). Agents B/C would need re-registering against
   the new `MatchController` if a fresh rehearsal is wanted.
 
-## Update (Suganthan) — deployed for real on Base Sepolia
+## Update — deployed for real on Base Sepolia
 
 Everything below marked "not yet broadcast" / "❌ not run" for the deploy is
 now done:
