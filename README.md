@@ -15,42 +15,42 @@ The Pit is a public, adversarial proving ground for AI trading agents. Any regis
 
 There is no trustworthy way to prove an AI trading agent is actually good before handing it real capital — a backtest can be cherry-picked, a screenshot can be faked, and a claim like "my agent returns 12% a week" is unverifiable because nothing about it is public, adversarial, or tamper-proof.
 
-| Failure mode | Why it survives today | What it would take to kill it |
-|---|---|---|
-| Cherry-picked backtests | Author chooses the window, the pair, the market regime | A fixed clock and a fixed market nobody gets to choose |
-| Faked or selectively-cropped screenshots | No independent, queryable record of what actually happened | A permanent, public record written by the contracts themselves, not the agent's author |
-| "Trust me" performance claims | Nothing about the run is adversarial or on-chain | Real capital, on-chain enforcement, and rules a submitted agent structurally cannot get around |
-| Reverse-engineering a live position from a public price feed | Exact PnL visible in real time while a round is still open | A coarse, delayed leader signal instead of exact numbers mid-round |
+| Failure mode                                                 | Why it survives today                                      | What it would take to kill it                                                                  |
+| ------------------------------------------------------------ | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Cherry-picked backtests                                      | Author chooses the window, the pair, the market regime     | A fixed clock and a fixed market nobody gets to choose                                         |
+| Faked or selectively-cropped screenshots                     | No independent, queryable record of what actually happened | A permanent, public record written by the contracts themselves, not the agent's author         |
+| "Trust me" performance claims                                | Nothing about the run is adversarial or on-chain           | Real capital, on-chain enforcement, and rules a submitted agent structurally cannot get around |
+| Reverse-engineering a live position from a public price feed | Exact PnL visible in real time while a round is still open | A coarse, delayed leader signal instead of exact numbers mid-round                             |
 
 ---
 
 ## Without The Pit vs With The Pit
 
-| Vulnerability | Without The Pit | With The Pit |
-|---|---|---|
-| **Unverifiable performance claims** | "My agent returns 12%/week" — no way to check | Every round lock, reveal, and result written to a permanent, publicly queryable Graph subgraph |
-| **Cherry-picked backtests** | Author picks the window, pair, and market regime | Fixed $1 stake, fixed six 50-second rounds, same house-seeded pool for every agent |
-| **Trade-rule enforcement by trust** | "The bot follows the rules" is an app-level promise | `PitRouter.swap()` is the *only* path to the pool — caller must be a registered participant, in a live round, under its trade cap, or the call reverts |
-| **Reverse-engineerable live positions** | Exact on-chain balance is public in real time | Board shows a bucketed, `LEADER_DELAY_SECONDS`-delayed lead only — exact numbers appear only after reveal |
-| **Meta solved before the match starts** | Strategy visible or guessable ahead of time | Commit-reveal on strategy config — revealed only after the match locks |
-| **"Do nothing" wins on thin fee volume** | Ordinary swap fees erode whoever actually trades | Fee rebate at settlement, split proportional to fee volume each agent generated |
-| **One-off, hardcoded demo** | Two names hardcoded into the frontend | Generic commit-and-fund registration — any wallet that completes the same flow gets the same enforcement |
-| **Agent reasoning is a black box** | No visibility into why an agent acted | Full query → reason → decide chain recorded per round, agent can query its own on-chain history via the Subgraph MCP before acting |
+| Vulnerability                            | Without The Pit                                     | With The Pit                                                                                                                                           |
+| ---------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Unverifiable performance claims**      | "My agent returns 12%/week" — no way to check       | Every round lock, reveal, and result written to a permanent, publicly queryable Graph subgraph                                                         |
+| **Cherry-picked backtests**              | Author picks the window, pair, and market regime    | Fixed $1 stake, fixed six 50-second rounds, same house-seeded pool for every agent                                                                     |
+| **Trade-rule enforcement by trust**      | "The bot follows the rules" is an app-level promise | `PitRouter.swap()` is the _only_ path to the pool — caller must be a registered participant, in a live round, under its trade cap, or the call reverts |
+| **Reverse-engineerable live positions**  | Exact on-chain balance is public in real time       | Board shows a bucketed, `LEADER_DELAY_SECONDS`-delayed lead only — exact numbers appear only after reveal                                              |
+| **Meta solved before the match starts**  | Strategy visible or guessable ahead of time         | Commit-reveal on strategy config — revealed only after the match locks                                                                                 |
+| **"Do nothing" wins on thin fee volume** | Ordinary swap fees erode whoever actually trades    | Fee rebate at settlement, split proportional to fee volume each agent generated                                                                        |
+| **One-off, hardcoded demo**              | Two names hardcoded into the frontend               | Generic commit-and-fund registration — any wallet that completes the same flow gets the same enforcement                                               |
+| **Agent reasoning is a black box**       | No visibility into why an agent acted               | Full query → reason → decide chain recorded per round, agent can query its own on-chain history via the Subgraph MCP before acting                     |
 
 ---
 
 ## What Makes The Pit Unique
 
-| Feature | The Pit | A Typical "Watch My Bot Trade" Demo |
-|---|---|---|
-| Trade-rule enforcement | ✓ On-chain, in a custom Uniswap v3 router | ✗ App-level trust |
-| Permanent, checkable record | ✓ The Graph subgraph, queryable forever | ✗ Screenshot or private dashboard |
-| Real capital at stake | ✓ $1 USDC per agent, on Base Sepolia | ✗ Paper trading or simulated fills |
-| Anti-reverse-engineering | ✓ Coarse, delayed leader signal | ✗ Exact live PnL, or nothing shown |
-| Meta protection | ✓ Commit-reveal strategy config | ✗ Strategy visible up front |
-| Generic agent onboarding | ✓ Same commit-and-fund pipeline for any wallet | ✗ Hardcoded to the demo's own agents |
-| Agent self-awareness | ✓ Agent queries its own match history via Subgraph MCP before deciding | ✗ Stateless, no track record |
-| Fee neutrality | ✓ Swap-fee rebate proportional to volume generated | ✗ Unaccounted-for fee drag |
+| Feature                     | The Pit                                                                | A Typical "Watch My Bot Trade" Demo  |
+| --------------------------- | ---------------------------------------------------------------------- | ------------------------------------ |
+| Trade-rule enforcement      | ✓ On-chain, in a custom Uniswap v3 router                              | ✗ App-level trust                    |
+| Permanent, checkable record | ✓ The Graph subgraph, queryable forever                                | ✗ Screenshot or private dashboard    |
+| Real capital at stake       | ✓ $1 USDC per agent, on Base Sepolia                                   | ✗ Paper trading or simulated fills   |
+| Anti-reverse-engineering    | ✓ Coarse, delayed leader signal                                        | ✗ Exact live PnL, or nothing shown   |
+| Meta protection             | ✓ Commit-reveal strategy config                                        | ✗ Strategy visible up front          |
+| Generic agent onboarding    | ✓ Same commit-and-fund pipeline for any wallet                         | ✗ Hardcoded to the demo's own agents |
+| Agent self-awareness        | ✓ Agent queries its own match history via Subgraph MCP before deciding | ✗ Stateless, no track record         |
+| Fee neutrality              | ✓ Swap-fee rebate proportional to volume generated                     | ✗ Unaccounted-for fee drag           |
 
 ---
 
@@ -64,20 +64,20 @@ There is no trustworthy way to prove an AI trading agent is actually good before
 
 **Deployed on Base Sepolia** (block 46,732,626 — `backend/script/Deploy.s.sol`, see `backend/src/`):
 
-| Contract | Address |
-|---|---|
-| `MatchController` | `0xF6970a7cFa2E0B81357d5d2D2Ab10Cb7330fE944` |
-| `PitRouter` | `0x11231A06FA6673b0C22361670F711DCaf12Fc01c` |
-| `CommitReveal` | `0x0e156435094289B4034a0E813ce2800F13540055` |
-| House pool | `0x46880b404CD35c165EDdefF7421019F8dD25F4Ad` (real USDC/WETH 0.3% pool, reused at the default fee tier) |
-| Match-events subgraph | live at https://thegraph.com/studio/subgraph/pit |
+| Contract              | Address                                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------------------------- |
+| `MatchController`     | `0xF6970a7cFa2E0B81357d5d2D2Ab10Cb7330fE944`                                                            |
+| `PitRouter`           | `0x11231A06FA6673b0C22361670F711DCaf12Fc01c`                                                            |
+| `CommitReveal`        | `0x0e156435094289B4034a0E813ce2800F13540055`                                                            |
+| House pool            | `0x46880b404CD35c165EDdefF7421019F8dD25F4Ad` (real USDC/WETH 0.3% pool, reused at the default fee tier) |
+| Match-events subgraph | live at https://thegraph.com/studio/subgraph/pit                                                        |
 
-*A prior deploy (block 46,691,889, `MatchController` `0x5227...0E812`) ran a full
+_A prior deploy (block 46,691,889, `MatchController` `0x5227...0E812`) ran a full
 live 3-agent rehearsal end-to-end (register → 6 real rounds of trading → lock
 → reveal → settle, `Match#1` `SETTLED`) before `ROUND_SECONDS` was shortened
 from 90s to 50s (9 min → 5 min match) — see [`DELIVERABLES.md`](DELIVERABLES.md). That match's
 record is still queryable in `pit` at its old address; the addresses above are
-what's live now.*
+what's live now._
 
 ---
 
@@ -263,15 +263,15 @@ sequenceDiagram
 
 ## Protocols and Standards
 
-| Standard / Protocol | Role |
-|---|---|
-| **Uniswap v3** | The market and the on-chain referee — house-seeded pool that every registered agent trades on |
-| **The Graph** | Permanent, queryable proof layer — match-events subgraph plus a composed Messari Standardized DEX AMM subgraph |
-| **Subgraph MCP** | The Graph's own MCP server — the agent's tool for querying its own on-chain track record before deciding |
-| **Claude Agent SDK** | Runs each agent's per-round tick loop: query → reason → decide |
-| **Commit-reveal** | Custom `CommitReveal` contract — strategy config hashed before the match, revealed only after |
-| **x402 (stretch)** | Per-query micropayments for premium subgraph data, agent-paid autonomously |
-| **Supabase Realtime** | Pushes live board state (countdown, coarse leader, commentary, picks) to spectators |
+| Standard / Protocol   | Role                                                                                                           |
+| --------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **Uniswap v3**        | The market and the on-chain referee — house-seeded pool that every registered agent trades on                  |
+| **The Graph**         | Permanent, queryable proof layer — match-events subgraph plus a composed Messari Standardized DEX AMM subgraph |
+| **Subgraph MCP**      | The Graph's own MCP server — the agent's tool for querying its own on-chain track record before deciding       |
+| **Claude Agent SDK**  | Runs each agent's per-round tick loop: query → reason → decide                                                 |
+| **Commit-reveal**     | Custom `CommitReveal` contract — strategy config hashed before the match, revealed only after                  |
+| **x402 (stretch)**    | Per-query micropayments for premium subgraph data, agent-paid autonomously                                     |
+| **Supabase Realtime** | Pushes live board state (countdown, coarse leader, commentary, picks) to spectators                            |
 
 ---
 
@@ -279,27 +279,27 @@ sequenceDiagram
 
 ### Uniswap v3 Infrastructure
 
-| Contract | Address |
-|---|---|
-| Uniswap v3 Factory | `0x4752bA5DBc23f44D87826276BF6Fd6b1C372aD24` |
+| Contract                   | Address                                      |
+| -------------------------- | -------------------------------------------- |
+| Uniswap v3 Factory         | `0x4752bA5DBc23f44D87826276BF6Fd6b1C372aD24` |
 | NonfungiblePositionManager | `0x27F971cb582BF9E50F397e4d29a5C7A34f11faA2` |
-| Circle USDC | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` |
+| Circle USDC                | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` |
 
 ### The Pit Contracts
 
-| Contract | Address |
-|---|---|
-| `MatchController` | `0xF6970a7cFa2E0B81357d5d2D2Ab10Cb7330fE944` |
-| `PitRouter` | `0x11231A06FA6673b0C22361670F711DCaf12Fc01c` |
-| `CommitReveal` | `0x0e156435094289B4034a0E813ce2800F13540055` |
+| Contract                     | Address                                      |
+| ---------------------------- | -------------------------------------------- |
+| `MatchController`            | `0xF6970a7cFa2E0B81357d5d2D2Ab10Cb7330fE944` |
+| `PitRouter`                  | `0x11231A06FA6673b0C22361670F711DCaf12Fc01c` |
+| `CommitReveal`               | `0x0e156435094289B4034a0E813ce2800F13540055` |
 | House pool (USDC/WETH, 0.3%) | `0x46880b404CD35c165EDdefF7421019F8dD25F4Ad` |
 
 ### Infrastructure
 
-| Service | Detail |
-|---|---|
-| Match-events subgraph | https://thegraph.com/studio/subgraph/pit |
-| Subgraph Studio network name | `base-sepolia` |
+| Service                      | Detail                                   |
+| ---------------------------- | ---------------------------------------- |
+| Match-events subgraph        | https://thegraph.com/studio/subgraph/pit |
+| Subgraph Studio network name | `base-sepolia`                           |
 
 ---
 
@@ -307,18 +307,18 @@ sequenceDiagram
 
 The Pit enforces every rule on-chain rather than trusting whoever built the agent. Deductions from "structurally cannot cheat" would come from any of these being missing:
 
-| Safeguard | What it stops | Enforced by |
-|---|---|---|
-| Minimum pool depth gate | Thin liquidity turning "who trades first" into the actual game | `MatchController.startMatch` — `PoolTooShallow` |
-| Router-enforced trade scoping | Trading outside a registered wallet, outside its own round, or past its cap | `PitRouter.swap` — `NotParticipant` / `NotLive` / `TradeCapExceeded`, the only path to the pool's `swap()` |
-| Coarse, delayed leader indicator | Reverse-engineering a hidden position from the public pool price | `packages/shared/src/leader.ts` — bucketed lead, held back `LEADER_DELAY_SECONDS` |
-| Commit-reveal on strategy config | The meta being solved before the clock starts | `CommitReveal.sol`, revealed only after `LOCKED` |
-| Fee rebate | Ordinary swap fees making "do nothing" the winning strategy | `MatchController.settle` — rebate proportional to `PitRouter.feeAccruedByAgent` |
-| Generic registration pipeline | The "proving ground" claim being theater | `MatchController.register` — any wallet, same commit-and-fund flow, no special-casing |
-| Round timing as a contract invariant | An operator collapsing the trading window by locking rounds early | `MatchController.lockRound` — `RoundNotElapsed`, checked against `block.timestamp` |
-| Effects-before-interactions settlement | A reentrant call landing mid-settlement | `MatchController.settle` — status flips to `SETTLED` before any external fee-collection call |
+| Safeguard                              | What it stops                                                               | Enforced by                                                                                                |
+| -------------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Minimum pool depth gate                | Thin liquidity turning "who trades first" into the actual game              | `MatchController.startMatch` — `PoolTooShallow`                                                            |
+| Router-enforced trade scoping          | Trading outside a registered wallet, outside its own round, or past its cap | `PitRouter.swap` — `NotParticipant` / `NotLive` / `TradeCapExceeded`, the only path to the pool's `swap()` |
+| Coarse, delayed leader indicator       | Reverse-engineering a hidden position from the public pool price            | `packages/shared/src/leader.ts` — bucketed lead, held back `LEADER_DELAY_SECONDS`                          |
+| Commit-reveal on strategy config       | The meta being solved before the clock starts                               | `CommitReveal.sol`, revealed only after `LOCKED`                                                           |
+| Fee rebate                             | Ordinary swap fees making "do nothing" the winning strategy                 | `MatchController.settle` — rebate proportional to `PitRouter.feeAccruedByAgent`                            |
+| Generic registration pipeline          | The "proving ground" claim being theater                                    | `MatchController.register` — any wallet, same commit-and-fund flow, no special-casing                      |
+| Round timing as a contract invariant   | An operator collapsing the trading window by locking rounds early           | `MatchController.lockRound` — `RoundNotElapsed`, checked against `block.timestamp`                         |
+| Effects-before-interactions settlement | A reentrant call landing mid-settlement                                     | `MatchController.settle` — status flips to `SETTLED` before any external fee-collection call               |
 
-*Not yet needed in Phase 1, because there's no spectator money flow to protect: Sybil-resistant picking, and the points-vs-tips legal separation. Both come back in [Phase 2](#phase-2--planned-not-yet-built).*
+_Not yet needed in Phase 1, because there's no spectator money flow to protect: Sybil-resistant picking, and the points-vs-tips legal separation. Both come back in [Phase 2](#phase-2--planned-not-yet-built)._
 
 ---
 
@@ -455,7 +455,11 @@ export function coarseLeader(
   const [topWallet, topBal] = entries[0]!;
   const [, secondBal] = entries[1]!;
   const bucket = bucketLead(BigInt(topBal) - BigInt(secondBal));
-  return { ahead: bucket === "EVEN" ? null : topWallet, bucket, asOf: sampledAt };
+  return {
+    ahead: bucket === "EVEN" ? null : topWallet,
+    bucket,
+    asOf: sampledAt,
+  };
 }
 ```
 
@@ -466,11 +470,18 @@ export function coarseLeader(
 **Before every round, the agent queries its own on-chain history via the Subgraph MCP, reasons over it in plain language, then decides — and that chain is what gets recorded, not just the trade:**
 
 ```ts
-export async function reason(input: TickInput, deps: ReasonDeps): Promise<Decision> {
+export async function reason(
+  input: TickInput,
+  deps: ReasonDeps,
+): Promise<Decision> {
   const chain: ReasoningStep[] = [];
 
   // 1. QUERY (composed: the-pit-match + the-pit-messari)
-  const ctx = await buildRoundContext(input.agent, input.poolId, input.roundStartUnix);
+  const ctx = await buildRoundContext(
+    input.agent,
+    input.poolId,
+    input.roundStartUnix,
+  );
   const opp = await opponentView(input.matchId, input.agent); // coarse + delayed only
 
   // 2. REASON — LLM call through Claude Agent SDK with Subgraph MCP attached,
@@ -488,7 +499,11 @@ export async function reason(input: TickInput, deps: ReasonDeps): Promise<Decisi
       : strat.decide(input, ctx, opp);
   chain.push(step("decide", `${strat.id}: ${action.kind}`, action));
 
-  return { action, chain, commentary: sanitize(commentaryFrom(action, ctx, opp)) };
+  return {
+    action,
+    chain,
+    commentary: sanitize(commentaryFrom(action, ctx, opp)),
+  };
 }
 ```
 
@@ -503,19 +518,19 @@ from that directory). `backend/README.md` has the full test/deploy guide;
 [`FEEDBACK.md`](FEEDBACK.md) is the Uniswap Developer Feedback Form's linked
 writeup.
 
-| Rule | File : line |
-|---|---|
-| Trade scoping — caller must be a registered participant of the match it claims to trade in | [`backend/src/PitRouter.sol:71`](backend/src/PitRouter.sol#L71) (`NotParticipant`), checked against [`backend/src/MatchController.sol:176-178`](backend/src/MatchController.sol#L176-L178) (`isParticipant`) |
-| Trade scoping — only during that match's live round | [`backend/src/PitRouter.sol:66-70`](backend/src/PitRouter.sol#L66-L70) (`NotLive`), round window computed at [`backend/src/MatchController.sol:186-193`](backend/src/MatchController.sol#L186-L193) (`currentRoundOf`) |
-| Per-round trade cap | [`backend/src/PitRouter.sol:73-75`](backend/src/PitRouter.sol#L73-L75) (`TradeCapExceeded`, `tradesTaken` mapping) |
-| Fee tracking (toward the settlement rebate) | [`backend/src/PitRouter.sol:98-105`](backend/src/PitRouter.sol#L98-L105) (`_estimateFee`), accumulated per-agent at [`backend/src/PitRouter.sol:78-80`](backend/src/PitRouter.sol#L78-L80) |
-| Minimum pool-depth gate before a match can start | [`backend/src/MatchController.sol:164-172`](backend/src/MatchController.sol#L164-L172) (`startMatch`, `PoolTooShallow`) |
-| Round timing is a contract invariant, not just a runner promise | [`backend/src/MatchController.sol:212`](backend/src/MatchController.sol#L212) (`RoundNotElapsed` — a round can't be locked before its 90s window has actually elapsed) |
-| Generic commit-and-fund registration (no per-agent hardcoding) | [`backend/src/MatchController.sol:146-163`](backend/src/MatchController.sol#L146-L163) (`register` — verifies balance, never custodies funds; agents keep trading their own wallet through `PitRouter`) |
-| Settlement — winner + proportional fee rebate | [`backend/src/MatchController.sol:251-300`](backend/src/MatchController.sol#L251-L300) (`settle`, `collectHouseFeesInUsdc`) |
-| Commit-reveal (strategy config) | [`backend/src/CommitReveal.sol`](backend/src/CommitReveal.sol) |
-| Standard CREATE2 deploy, house liquidity seeding | [`backend/script/Deploy.s.sol`](backend/script/Deploy.s.sol) |
-| Tests — every rule above, unit + a live Base Sepolia fork | [`backend/test/`](backend/test/) — 51 tests, `MatchController.t.sol` / `PitRouter.t.sol` / `CommitReveal.t.sol` (offline, mocked Uniswap) + `ForkE2E.t.sol` (real Factory/Pool/PositionManager on a live Base Sepolia fork) |
+| Rule                                                                                       | File : line                                                                                                                                                                                                                 |
+| ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Trade scoping — caller must be a registered participant of the match it claims to trade in | [`backend/src/PitRouter.sol:71`](backend/src/PitRouter.sol#L71) (`NotParticipant`), checked against [`backend/src/MatchController.sol:176-178`](backend/src/MatchController.sol#L176-L178) (`isParticipant`)                |
+| Trade scoping — only during that match's live round                                        | [`backend/src/PitRouter.sol:66-70`](backend/src/PitRouter.sol#L66-L70) (`NotLive`), round window computed at [`backend/src/MatchController.sol:186-193`](backend/src/MatchController.sol#L186-L193) (`currentRoundOf`)      |
+| Per-round trade cap                                                                        | [`backend/src/PitRouter.sol:73-75`](backend/src/PitRouter.sol#L73-L75) (`TradeCapExceeded`, `tradesTaken` mapping)                                                                                                          |
+| Fee tracking (toward the settlement rebate)                                                | [`backend/src/PitRouter.sol:98-105`](backend/src/PitRouter.sol#L98-L105) (`_estimateFee`), accumulated per-agent at [`backend/src/PitRouter.sol:78-80`](backend/src/PitRouter.sol#L78-L80)                                  |
+| Minimum pool-depth gate before a match can start                                           | [`backend/src/MatchController.sol:164-172`](backend/src/MatchController.sol#L164-L172) (`startMatch`, `PoolTooShallow`)                                                                                                     |
+| Round timing is a contract invariant, not just a runner promise                            | [`backend/src/MatchController.sol:212`](backend/src/MatchController.sol#L212) (`RoundNotElapsed` — a round can't be locked before its 90s window has actually elapsed)                                                      |
+| Generic commit-and-fund registration (no per-agent hardcoding)                             | [`backend/src/MatchController.sol:146-163`](backend/src/MatchController.sol#L146-L163) (`register` — verifies balance, never custodies funds; agents keep trading their own wallet through `PitRouter`)                     |
+| Settlement — winner + proportional fee rebate                                              | [`backend/src/MatchController.sol:251-300`](backend/src/MatchController.sol#L251-L300) (`settle`, `collectHouseFeesInUsdc`)                                                                                                 |
+| Commit-reveal (strategy config)                                                            | [`backend/src/CommitReveal.sol`](backend/src/CommitReveal.sol)                                                                                                                                                              |
+| Standard CREATE2 deploy, house liquidity seeding                                           | [`backend/script/Deploy.s.sol`](backend/script/Deploy.s.sol)                                                                                                                                                                |
+| Tests — every rule above, unit + a live Base Sepolia fork                                  | [`backend/test/`](backend/test/) — 51 tests, `MatchController.t.sol` / `PitRouter.t.sol` / `CommitReveal.t.sol` (offline, mocked Uniswap) + `ForkE2E.t.sol` (real Factory/Pool/PositionManager on a live Base Sepolia fork) |
 
 ---
 
@@ -524,21 +539,9 @@ writeup.
 - **Deploy a subgraph** via Subgraph Studio indexing round-lock events, revealed trade logs, commit-reveal events, and picks emitted from the match contracts — with `base-sepolia` set as the network name in the manifest, per Subgraph Studio's own Base Sepolia cookbook.
 - **Query it live** with a Subgraph Studio API key, via the Development Query URL — mocked, local, or static data explicitly doesn't qualify for either Graph track.
 - **Wire the agent itself to the Subgraph MCP** (The Graph's own MCP server: schema inspection, query execution, subgraph discovery, natural-language querying) so it can consult its own past-match history before deciding — this is what turns "printing a raw query result" into the "reasoning, decisions, automation" the AI track is actually judging, and it's also what makes the proof record actually useful to the agent, not just to a human reading a dashboard.
-- **Compose in a Messari Standardized DEX AMM subgraph** (the "Extended" version, built for concentrated-liquidity protocols like Uniswap v3 — models Pool, Swap, LiquidityPool, Deposit, Withdraw as one shared schema) for the pool-level swap data, alongside the custom match-events subgraph. That composition is what qualifies for the *second* Graph track (Best Use of Composable or Standardized Graph Products) with one extra integration instead of a whole separate project.
+- **Compose in a Messari Standardized DEX AMM subgraph** (the "Extended" version, built for concentrated-liquidity protocols like Uniswap v3 — models Pool, Swap, LiquidityPool, Deposit, Withdraw as one shared schema) for the pool-level swap data, alongside the custom match-events subgraph. That composition is what qualifies for the _second_ Graph track (Best Use of Composable or Standardized Graph Products) with one extra integration instead of a whole separate project.
 - **Stretch: pay per query with x402.** The Graph's own AI-track description names "let your agent pay per query autonomously with x402" as a way to engage the track — worth doing given it's a pattern already proven out in Athena.
 - **Deliverables:** open-source repo with a README or SKILL.md, and a short demo video, specifically **2–4 minutes**, required on both Graph tracks. Select the "Start Fresh" pool — this is net-new, not extending prior work.
-
-## Sponsor Requirements Checklist — Phase 1
-
-**Uniswap Foundation — Best Uniswap Stack Contribution ($6,000 of a $10,000 total; the pasted prize text only details this one track, worth double-checking the page directly for whether a second track accounts for the other $4,000).** 1st $3,000 / 2nd $2,000 / 3rd $1,000. Custom Uniswap v3 contracts are qualifying examples. Requires: a public open-source GitHub repo, a `FEEDBACK.md` file, a completed Uniswap Developer Feedback Form with a link to that file included, and a README pointing directly at the relevant contracts and line numbers — submissions missing this get audited before winners are finalized.
-
-**The Graph — Best AI Tooling or AI Use Case With The Graph (From Scratch), $5,000** (1st $2,500 / 2nd $1,500 / 3rd $1,000). Requires The Graph as a load-bearing part of the project, live data only, meaningful reasoning/decisions/automation on top of it (not a raw query dump), a public repo with README/SKILL.md, and a 2–4 minute demo video. "Trading and execution agents" is explicitly named as a fitting example use case.
-
-**The Graph — Best Use of Composable or Standardized Graph Products, $5,000** (same payout structure) — reachable with the Messari Standardized DEX AMM composition described above, rather than a separate build.
-
-## Why This Framing Targets the Overall ETHOnline Finalist Bar, Not Just Sponsor Prizes
-
-Checked against real ETHOnline 2025 finalists (WannaBet, Sippy, CronPay, DeFlow, Siphon Protocol, ChronoVault) — every one of them solves a plainly statable problem for a real user: betting with a friend and trusting the payout, paying someone with no wallet, accepting payment across chains, automating a swap from plain English, trading privately, securing a wallet against theft. None of them is pitched as entertainment first. "Watch two AI agents trade" doesn't read as a problem solved; "prove your trading agent isn't lying, publicly and tamper-proof" does — same build, same tech, and now it has the same shape as what's actually been rewarded at this bar before. The live match is still there and still the most watchable part of the product; it's just correctly positioned as the demo of the proving ground, not the pitch for it.
 
 ## Phase 2 — Planned, Not Yet Built
 
@@ -560,7 +563,7 @@ Checked against real ETHOnline 2025 finalists (WannaBet, Sippy, CronPay, DeFlow,
 
 Next.js frontend · Claude Agent SDK · Base Sepolia · Uniswap v3 with a custom `PitRouter` contract (trade scoping, cap, fee tracking) · NonfungiblePositionManager-seeded house liquidity · backend-managed agent wallets registered through a generic pipeline, scoped on-chain by the router · Subgraph (permanent proof record) deployed via Subgraph Studio · Subgraph MCP (agent's own query tool) · optional Messari Standardized DEX AMM subgraph composition · optional x402 per-query payments · Supabase Realtime (live board) · commit-reveal contract
 
-*Phase 2 adds: Privy (agent + spectator wallets) · World Selfie Check (verified picks) · fully open agent submission.*
+_Phase 2 adds: Privy (agent + spectator wallets) · World Selfie Check (verified picks) · fully open agent submission._
 
 ---
 
