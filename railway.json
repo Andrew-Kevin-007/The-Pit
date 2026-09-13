@@ -1,0 +1,12 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "npm ci --include=dev && npm -w @the-pit/shared run build && npm -w @the-pit/graph-client run build && npm -w @the-pit/agent run build && npm -w @the-pit/runner run build"
+  },
+  "deploy": {
+    "startCommand": "node packages/runner/dist/index.js loop",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  }
+}
